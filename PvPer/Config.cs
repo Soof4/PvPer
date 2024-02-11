@@ -5,7 +5,6 @@ namespace PvPer
     public class Config
     {
         public int Player1PositionX, Player1PositionY, Player2PositionX, Player2PositionY, ArenaPosX1, ArenaPosY1, ArenaPosX2, ArenaPosY2;
-        public List<string> DisabledCommands = new List<string>();
         public void Write()
         {
             File.WriteAllText(PvPer.ConfigPath, JsonConvert.SerializeObject(this, Formatting.Indented));

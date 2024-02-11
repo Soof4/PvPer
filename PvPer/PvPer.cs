@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Data.Sqlite;
+using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -9,7 +10,7 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(0, 1, 6);
+        public override Version Version => new Version(1, 0, 0);
         public override string Author => "Soofa";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
@@ -17,39 +18,30 @@ namespace PvPer
         public static Config Config = new Config();
         public static List<Pair> Invitations = new List<Pair>();
         public static List<Pair> ActiveDuels = new List<Pair>();
-
+        public static DbManager DbManager = new DbManager(new SqliteConnection("Data Source=" + Path.Combine(TShock.SavePath, "PvPer.sqlite")));
         public override void Initialize()
         {
             GetDataHandlers.PlayerTeam += OnPlayerChangeTeam;
             GetDataHandlers.TogglePvp += OnPlayerTogglePvP;
             GetDataHandlers.Teleport += OnPlayerTeleport;
-
-            GeneralHooks.ReloadEvent += OnReload;
-            ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+            GetDataHandlers.PlayerUpdate += OnPlayerUpdate;
             GetDataHandlers.KillMe += OnKill;
-            ServerApi.Hooks.ServerChat.Register(this, OnServerChat);
+            ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+            GeneralHooks.ReloadEvent += OnReload;
 
             TShockAPI.Commands.ChatCommands.Add(new Command("pvper.duel", Commands.Duel, "duel"));
             Config = Config.Read();
         }
 
         #region Hooks
-        public static void OnServerChat(ServerChatEventArgs args) {
-            if (args.Text.StartsWith(TShock.Config.Settings.CommandSpecifier) || 
-                args.Text.StartsWith(TShock.Config.Settings.CommandSilentSpecifier)) {
-
-                string newTxt = args.Text.Remove(0, 1).ToLower();
-
-                foreach (string cmd in Config.DisabledCommands) {
-                    if (newTxt.StartsWith(cmd)) {
-                        TShock.Players[args.Who].KillPlayer();
-                        return;
-                    }
-                }
+        public static void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
+        {
+            if (Utils.IsPlayerInADuel(args.PlayerId) && !Utils.IsPlayerInArena(args.Player))
+            {
+                args.Player.KillPlayer();
             }
         }
-
-        public static void OnKill(object? sender, GetDataHandlers.KillMeEventArgs args)
+        public void OnKill(object? sender, GetDataHandlers.KillMeEventArgs args)
         {
             TSPlayer plr = TShock.Players[args.PlayerId];
             Pair? duel = Utils.GetDuel(plr.Index);
@@ -88,10 +80,9 @@ namespace PvPer
             TSPlayer plr = TShock.Players[args.ID];
             Pair? duel = Utils.GetDuel(args.ID);
 
-            if (duel != null && !Utils.IsLocationInArena((int)(args.X /16), (int)(args.Y / 16)))
+            if (duel != null && !Utils.IsLocationInArena((int)(args.X / 16), (int)(args.Y / 16)))
             {
-                int winnerIndex = duel.Player1 == args.ID ? duel.Player2 : duel.Player1;
-                duel.EndDuel(winnerIndex);
+                args.Player.KillPlayer();
             }
         }
 
@@ -107,13 +98,11 @@ namespace PvPer
                 plr.SendData(PacketTypes.PlayerTeam, number: plr.Index);
             }
         }
-
         private static void OnReload(ReloadEventArgs args)
         {
             args.Player.SendSuccessMessage("PvPer has been reloaded.");
             Config = Config.Read();
         }
-
         #endregion
     }
 }

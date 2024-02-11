@@ -2,7 +2,7 @@ using TShockAPI;
 using Terraria;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
-using Org.BouncyCastle.Bcpg;
+using TerrariaApi.Server;
 
 namespace PvPer
 {
@@ -31,24 +31,6 @@ namespace PvPer
         public override int GetHashCode()
         {
             return Player1 << 16 | Player2;
-        }
-
-        public void EndDuel(int winner)
-        {
-            int loser = winner == Player1 ? Player2 : Player1;
-            TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won against {TShock.Players[loser].Name}!", 255, 204, 255);
-            PvPer.ActiveDuels.Remove(this);
-            TShock.Players[winner].SetPvP(false);
-            TShock.Players[loser].SetPvP(false);
-            
-            Task.Run(async () =>
-            {
-                int p = Projectile.NewProjectile(Projectile.GetNoneSource(), TShock.Players[winner].TPlayer.position.X + 16, 
-                    TShock.Players[winner].TPlayer.position.Y - 64f, 0f, -8f, ProjectileID.RocketFireworkGreen, 0, 0);
-				Main.projectile[p].Kill();
-                await Task.Delay(5000);
-                TShock.Players[winner].Teleport(Main.spawnTileX * 16, Main.spawnTileY * 16);
-            });
         }
 
         public void StartDuel()
@@ -80,6 +62,9 @@ namespace PvPer
                 return;
             }
 
+            plr1.SendSuccessMessage($"Duel is starting!");
+            plr2.SendSuccessMessage($"Duel is starting!");
+
             // Move the pair to active duels
             PvPer.Invitations.Remove(this);
             PvPer.ActiveDuels.Add(this);
@@ -89,8 +74,8 @@ namespace PvPer
             plr2.Teleport(PvPer.Config.Player2PositionX * 16, PvPer.Config.Player2PositionY * 16);
 
 
-            plr1.SetBuff(BuffID.Webbed, 60 * 5);
-            plr2.SetBuff(BuffID.Webbed, 60 * 5);
+            plr1.SetBuff(BuffID.Webbed, 60 * 6);
+            plr2.SetBuff(BuffID.Webbed, 60 * 6);
 
             float gameModeFactor = 1;
             if (Main.GameMode == GameModeID.Master)
@@ -102,43 +87,46 @@ namespace PvPer
                 gameModeFactor = 2f;
             }
 
-            plr1.SetBuff(BuffID.Cursed, (int)(60 * 5 / gameModeFactor));
-            plr2.SetBuff(BuffID.Cursed, (int)(60 * 5 / gameModeFactor));
+            plr1.SetBuff(BuffID.Cursed, (int)(60 * 6 / gameModeFactor));
+            plr2.SetBuff(BuffID.Cursed, (int)(60 * 6 / gameModeFactor));
             plr1.SetPvP(false);
             plr2.SetPvP(false);
             plr1.SetTeam(0);
             plr2.SetTeam(0);
+            plr1.Heal();
+            plr2.Heal();
 
             // Countdown and set pvp mode of each player
             Task.Run(async () =>
             {
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(255, 204, 255).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
                     plr1.X + 16, plr1.Y - 16);
 
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(255, 204, 255).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
                     plr2.X + 16, plr2.Y - 16);
 
-                for (int i = 1; i <= 5; i++)
+                for (int i = 5; i > 0; i--)
                 {
+                    await Task.Delay(1000);
                     NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255, 204, 255).PackedValue,
+                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255 - i * 50, i * 50, 0).PackedValue,
                         plr1.X + 16, plr1.Y - 16);
 
                     NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255, 204, 255).PackedValue,
+                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255 - i * 50, i * 50, 0).PackedValue,
                         plr2.X + 16, plr2.Y - 16);
-
-                    await Task.Delay(1000);
                 }
 
+                await Task.Delay(1000);
+
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 204, 255).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
                     plr1.X + 16, plr1.Y - 16);
 
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Go!!"), (int)new Color(255, 204, 255).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("Go!!"), (int)new Color(255, 0, 0).PackedValue,
                     plr2.X + 16, plr2.Y - 16);
 
                 plr1.TPlayer.hostile = true;
@@ -148,6 +136,65 @@ namespace PvPer
                 NetMessage.SendData((int)PacketTypes.TogglePvp, Player2, -1, Terraria.Localization.NetworkText.Empty, Player1);
                 NetMessage.SendData((int)PacketTypes.TogglePvp, Player2, -1, Terraria.Localization.NetworkText.Empty, Player2);
             });
+        }
+
+        public void EndDuel(int winner)
+        {
+            int loser = winner == Player1 ? Player2 : Player1;
+            TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won against {TShock.Players[loser].Name}!", 255, 204, 255);
+
+            PvPer.ActiveDuels.Remove(this);
+            TShock.Players[winner].SetPvP(false);
+            TShock.Players[loser].SetPvP(false);
+
+            Task.Run(async () =>
+            {
+                SavePlayersData(winner);
+
+                int p = Projectile.NewProjectile(Projectile.GetNoneSource(), TShock.Players[winner].TPlayer.position.X + 16,
+                    TShock.Players[winner].TPlayer.position.Y - 64f, 0f, -8f, ProjectileID.RocketFireworkGreen, 0, 0);
+                Main.projectile[p].Kill();
+                await Task.Delay(5000);
+                TShock.Players[winner].Teleport(Main.spawnTileX * 16, Main.spawnTileY * 16);
+            });
+        }
+
+        public void SavePlayersData(int winnerIndex)
+        {
+            DPlayer plr1, plr2;
+            try
+            {
+                plr1 = PvPer.DbManager.GetDPlayer(TShock.Players[Player1].Account.ID);
+            }
+            catch (NullReferenceException)
+            {
+                PvPer.DbManager.InsertPlayer(TShock.Players[Player1].Account.ID, 0, 0);
+                plr1 = PvPer.DbManager.GetDPlayer(TShock.Players[Player1].Account.ID);
+            }
+            try
+            {
+                plr2 = PvPer.DbManager.GetDPlayer(TShock.Players[Player2].Account.ID);
+            }
+            catch (NullReferenceException)
+            {
+                PvPer.DbManager.InsertPlayer(TShock.Players[Player2].Account.ID, 0, 0);
+                plr2 = PvPer.DbManager.GetDPlayer(TShock.Players[Player2].Account.ID);
+            }
+
+            if (winnerIndex == Player1)
+            {
+                plr1.Kills++;
+                plr2.Deaths++;
+                PvPer.DbManager.SavePlayer(plr1);
+                PvPer.DbManager.SavePlayer(plr2);
+            }
+            else
+            {
+                plr2.Kills++;
+                plr1.Deaths++;
+                PvPer.DbManager.SavePlayer(plr1);
+                PvPer.DbManager.SavePlayer(plr2);
+            }
         }
     }
 }
