@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using Org.BouncyCastle.Utilities;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -10,7 +11,7 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(1, 0, 0);
+        public override Version Version => new Version(1, 0, 1);
         public override string Author => "Soofa";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
@@ -38,7 +39,7 @@ namespace PvPer
         {
             if (Utils.IsPlayerInADuel(args.PlayerId) && !Utils.IsPlayerInArena(args.Player))
             {
-                args.Player.KillPlayer();
+                args.Player.DamagePlayer(int.MaxValue);
             }
         }
         public void OnKill(object? sender, GetDataHandlers.KillMeEventArgs args)

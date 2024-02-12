@@ -55,6 +55,14 @@ namespace PvPer
                     PvPer.Invitations.Remove(this);
                     return;
                 }
+
+                if (Utils.IsPlayerInADuel(plr1.Index) || Utils.IsPlayerInADuel(plr2.Index))
+                {
+                    plr1.SendErrorMessage("Duel has been cancelled because one of the participants is already in a duel.");
+                    plr2.SendErrorMessage("Duel has been cancelled because one of the participants is already in a duel.");
+                    PvPer.Invitations.Remove(this);
+                    return;
+                }
             }
             else
             {
@@ -65,36 +73,25 @@ namespace PvPer
             plr1.SendSuccessMessage($"Duel is starting!");
             plr2.SendSuccessMessage($"Duel is starting!");
 
-            // Move the pair to active duels
-            PvPer.Invitations.Remove(this);
-            PvPer.ActiveDuels.Add(this);
-
             // Teleport and buffs
             plr1.Teleport(PvPer.Config.Player1PositionX * 16, PvPer.Config.Player1PositionY * 16);
             plr2.Teleport(PvPer.Config.Player2PositionX * 16, PvPer.Config.Player2PositionY * 16);
 
-
             plr1.SetBuff(BuffID.Webbed, 60 * 6);
             plr2.SetBuff(BuffID.Webbed, 60 * 6);
 
-            float gameModeFactor = 1;
-            if (Main.GameMode == GameModeID.Master)
-            {
-                gameModeFactor = 2.5f;
-            }
-            else if (Main.GameMode == GameModeID.Expert)
-            {
-                gameModeFactor = 2f;
-            }
-
-            plr1.SetBuff(BuffID.Cursed, (int)(60 * 6 / gameModeFactor));
-            plr2.SetBuff(BuffID.Cursed, (int)(60 * 6 / gameModeFactor));
             plr1.SetPvP(false);
             plr2.SetPvP(false);
             plr1.SetTeam(0);
             plr2.SetTeam(0);
             plr1.Heal();
             plr2.Heal();
+            plr1.SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
+            plr2.SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
+
+            // Move the pair to active duels
+            PvPer.Invitations.Remove(this);
+            PvPer.ActiveDuels.Add(this);
 
             // Countdown and set pvp mode of each player
             Task.Run(async () =>
