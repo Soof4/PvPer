@@ -4,6 +4,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using Microsoft.Xna.Framework;
 
 namespace PvPer
 {
@@ -11,37 +12,68 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(1, 0, 1);
-        public override string Author => "Soofa";
+        public override Version Version => new Version(1, 1, 0);
+        public override string Author => "Soofa 羽学";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
         public static string ConfigPath = Path.Combine(TShock.SavePath + "/PvPerConfig.json");
-        public static Config Config = new Config();
+        public static Configuration Config = new Configuration();
+
         public static List<Pair> Invitations = new List<Pair>();
         public static List<Pair> ActiveDuels = new List<Pair>();
         public static DbManager DbManager = new DbManager(new SqliteConnection("Data Source=" + Path.Combine(TShock.SavePath, "PvPer.sqlite")));
         public override void Initialize()
         {
+            LoadConfig();
             GetDataHandlers.PlayerTeam += OnPlayerChangeTeam;
             GetDataHandlers.TogglePvp += OnPlayerTogglePvP;
             GetDataHandlers.Teleport += OnPlayerTeleport;
             GetDataHandlers.PlayerUpdate += OnPlayerUpdate;
             GetDataHandlers.KillMe += OnKill;
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-            GeneralHooks.ReloadEvent += OnReload;
+            GeneralHooks.ReloadEvent += LoadConfig;
+            TShockAPI.Commands.ChatCommands.Add(new Command("pvper.use", Commands.Duel, "pvp"));
+        }
 
-            TShockAPI.Commands.ChatCommands.Add(new Command("pvper.duel", Commands.Duel, "duel"));
-            Config = Config.Read();
+        private static void LoadConfig(ReloadEventArgs args = null!)
+        {
+            string configPath = Configuration.FilePath;
+
+            if (File.Exists(configPath))
+            {
+                Config = Configuration.Read(configPath);
+                Console.WriteLine($"[PvPerConfig]Reloading");
+            }
+            else
+            {
+                Config = new Configuration();
+                Config.Write(configPath);
+            }
         }
 
         #region Hooks
-        public static void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
+        public static async void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
         {
-            if (Utils.IsPlayerInADuel(args.PlayerId) && !Utils.IsPlayerInArena(args.Player))
+            TSPlayer plr = TShock.Players[args.PlayerId];
+            string playerName = plr.Name;
+
+            if (Utils.IsPlayerInADuel(args.PlayerId) && !Utils.IsPlayerInArena(plr))
             {
-                args.Player.DamagePlayer(int.MaxValue);
+                if (Config.PlayerKill)
+                {
+                    plr.KillPlayer();
+                    plr.SendMessage($"{playerName}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death]", Color.Yellow);
+                    return;
+                }
+                else
+                {
+                    plr.DamagePlayer(Config.PlayerSlap);
+                    plr.SendMessage($"{playerName}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:deduction of {Config.PlayerSlap} blood]", Color.Yellow);
+                    return;
+                }
             }
         }
+
         public void OnKill(object? sender, GetDataHandlers.KillMeEventArgs args)
         {
             TSPlayer plr = TShock.Players[args.PlayerId];
@@ -98,11 +130,6 @@ namespace PvPer
                 plr.TPlayer.team = 0;
                 plr.SendData(PacketTypes.PlayerTeam, number: plr.Index);
             }
-        }
-        private static void OnReload(ReloadEventArgs args)
-        {
-            args.Player.SendSuccessMessage("PvPer has been reloaded.");
-            Config = Config.Read();
         }
         #endregion
     }
