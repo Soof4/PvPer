@@ -6,7 +6,7 @@ namespace PvPer
 {
     public class DPlayer
     {
-        public int AccountID, Kills, Deaths;
+        public int AccountID, Kills, Deaths, Rating, RatingDeviation, RatingVolatility;
 
         public DPlayer(int accountID, int kills, int deaths)
         {

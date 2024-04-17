@@ -11,7 +11,7 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(1, 0, 1);
+        public override Version Version => new Version(1, 1, 0);
         public override string Author => "Soofa";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }

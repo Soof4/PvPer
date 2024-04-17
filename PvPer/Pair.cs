@@ -138,7 +138,8 @@ namespace PvPer
         public void EndDuel(int winner)
         {
             int loser = winner == Player1 ? Player2 : Player1;
-            TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won against {TShock.Players[loser].Name}!", 255, 204, 255);
+            string msg = DeathMessages.GetMessage(TShock.Players[winner].Name, TShock.Players[loser].Name);
+            TSPlayer.All.SendMessage(msg, 255, 204, 255);
 
             PvPer.ActiveDuels.Remove(this);
             TShock.Players[winner].SetPvP(false);
