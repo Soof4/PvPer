@@ -13,6 +13,7 @@ namespace PvPer
     {
         public override string Name => "PvPer";
         public override Version Version => new Version(1, 1, 0);
+
         public override string Author => "Soofa 羽学";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
