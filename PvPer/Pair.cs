@@ -71,8 +71,8 @@ namespace PvPer
                 return;
             }
 
-            plr1.SendSuccessMessage($"Duel has begun!");
-            plr2.SendSuccessMessage($"Duel has begun!");
+            plr1.SendSuccessMessage($"Duel is starting!");
+            plr2.SendSuccessMessage($"Duel is starting!");
 
             plr1.Teleport(PvPer.Config.Player1PositionX * 16, PvPer.Config.Player1PositionY * 16);
             plr2.Teleport(PvPer.Config.Player2PositionX * 16, PvPer.Config.Player2PositionY * 16);
@@ -95,11 +95,11 @@ namespace PvPer
             Task.Run(async () =>
             {
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel will begin shortly..."), (int)new Color(0, 255, 0).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
                     plr1.X + 16, plr1.Y - 16);
 
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel will begin shortly..."), (int)new Color(0, 255, 0).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
                     plr2.X + 16, plr2.Y - 16);
 
                 for (int i = 5; i > 0; i--)
@@ -117,11 +117,11 @@ namespace PvPer
                 await Task.Delay(1000);
 
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Go!!"), (int)new Color(255, 0, 0).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
                     plr1.X + 16, plr1.Y - 16);
 
                 NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Go!!"), (int)new Color(255, 0, 0).PackedValue,
+                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
                     plr2.X + 16, plr2.Y - 16);
 
                 plr1.TPlayer.hostile = true;
@@ -135,6 +135,7 @@ namespace PvPer
 
         public void EndDuel(int winner)
         {
+        
             int loser = winner == Player1 ? Player2 : Player1;
             string msg = DeathMessages.GetMessage(TShock.Players[winner].Name, TShock.Players[loser].Name);
             TSPlayer.All.SendMessage(msg, 255, 204, 255);
@@ -142,23 +143,27 @@ namespace PvPer
             PvPer.ActiveDuels.Remove(this);
             TShock.Players[winner].SetPvP(false);
             TShock.Players[loser].SetPvP(false);
-
-            // Save winner data and calculate win streak
-            SavePlayersData(winner);
-            // Reset loser's win streak to 0
-            ResetLoserWinStreak(loser);
-            // Update winner's win streak
-            DPlayer winnerData = PvPer.DbManager.GetDPlayer(TShock.Players[winner].Account.ID);
-            winnerData.WinStreak++; // Increment winner's win streak
-            PvPer.DbManager.SavePlayer(winnerData); // Save updated winner data
-
-            int winStreak = winnerData.WinStreak; // Use updated winner's win streak directly
-            TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won {winStreak} consecutive duels!", 255, 255, 90);
-
-            // Launch fireworks
-            int p = Projectile.NewProjectile(Projectile.GetNoneSource(), TShock.Players[winner].TPlayer.position.X + 16,
-            TShock.Players[winner].TPlayer.position.Y - 64f, 0f, -8f, ProjectileID.RocketFireworkGreen, 0, 0);
-            Main.projectile[p].Kill();
+            
+            Task.Run(async () {
+                // Save winner data and calculate win streak
+                SavePlayersData(winner);
+                // Reset loser's win streak to 0
+                ResetLoserWinStreak(loser);
+                // Update winner's win streak
+                DPlayer winnerData = PvPer.DbManager.GetDPlayer(TShock.Players[winner].Account.ID);
+                winnerData.WinStreak++; // Increment winner's win streak
+                PvPer.DbManager.SavePlayer(winnerData); // Save updated winner data
+    
+                int winStreak = winnerData.WinStreak; // Use updated winner's win streak directly
+                TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won {winStreak} consecutive duels!", 255, 255, 90);
+    
+                // Launch fireworks
+                int p = Projectile.NewProjectile(Projectile.GetNoneSource(), TShock.Players[winner].TPlayer.position.X + 16,
+                TShock.Players[winner].TPlayer.position.Y - 64f, 0f, -8f, ProjectileID.RocketFireworkGreen, 0, 0);
+                Main.projectile[p].Kill();
+                await Task.Delay(5000);
+                TShock.Players[winner].Teleport(Main.spawnTileX * 16, Main.spawnTileY * 16);
+            });
         }
 
         // Reset the loser's win streak to 0
