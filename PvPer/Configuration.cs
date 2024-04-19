@@ -6,9 +6,11 @@ namespace PvPer
 {
     public class Configuration
     {
-        public string README = "/pvp set 3 4 Set the coordinates of the player's teleportation higher or lower than the player's coordinates by 3 blocks";
-        public string README2 = "`README2` = \"Pull Range: Will retract players from their direction of exiting the arena back to a specified opposite position relative to the arena center (a positive value indicates a position in the same direction). This feature is enabled by default when the option to kill players is disabled.\"";
-        public string PermName = "pvper.use / pvper.admin";
+        public string README = "/duel set 3 4 Set the coordinates of the player's teleportation higher or lower than the player's coordinates by 3 blocks";
+        public string README2 = "Pull Range: Will retract players from their direction of exiting the arena back to a specified " +
+            "opposite position relative to the arena center (a positive value indicates a position in the same direction). " +
+            "This feature is enabled by default when the option to kill players is disabled.";
+        public string PermName = "pvper.duel / pvper.admin";
         public bool PullArena = true;
         public int PullRange = -20;
         public bool PlayerKill = false;
@@ -22,7 +24,7 @@ namespace PvPer
         public int ArenaPosX2 = 0;
         public int ArenaPosY2 = 0;
 
-        public static readonly string FilePath = Path.Combine(TShock.SavePath + "/pvper.json");
+        public static readonly string FilePath = Path.Combine(TShock.SavePath, "PvPerConfig.json");
 
         public void Write(string path)
         {
