@@ -1,4 +1,4 @@
-# pvper
+# PvPer
 
 - Author: Soofa, Yuxue
 - Source: [GitHub](https://github.com/Soof4/PvPer/)
