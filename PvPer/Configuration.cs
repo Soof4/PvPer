@@ -12,7 +12,7 @@ namespace PvPer
         public bool PullArena = true;
         public int PullRange = -20;
         public bool PlayerKill = false;
-        public int PlayerSlap = 20;
+        public int PlayerSlap = int.MaxValue;
         public int Player1PositionX = 0;
         public int Player1PositionY = 0;
         public int Player2PositionX = 0;
