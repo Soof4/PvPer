@@ -192,7 +192,7 @@ namespace PvPer
 
             PvPer.Invitations.Add(new Pair(args.Player.Index, targetPlr.Index));
             args.Player.SendSuccessMessage($"Successfully invited {targetPlr.Name} to a duel.");
-            targetPlr.SendMessage($"{args.Player.Name} [c/FE7F81:has sent you a duel invitation] \nEnter [c/CCFFCC:/duel accept] yes to accept or [c/FFE6CC:/duel reject] to reject.", 255, 204, 255);
+            targetPlr.SendMessage($"{args.Player.Name} [c/FE7F81:has sent you a duel invitation] \nEnter [c/CCFFCC:/duel accept] to accept or [c/FFE6CC:/duel reject] to reject.", 255, 204, 255);
         }
 
         private static void AcceptCmd(CommandArgs args)
