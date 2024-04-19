@@ -140,7 +140,7 @@ namespace PvPer
         private static void ClearAllData(CommandArgs args)
         {
             // Try to delete all player data from the database
-            if (DbManager.ClearData())
+            if (PvPer.DbManager.ClearData())
             {
                 args.Player.SendSuccessMessage("All players' dueling data in the database has been successfully cleared.");
                 TShock.Log.ConsoleInfo("All players' dueling data in the database has been successfully cleared.");

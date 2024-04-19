@@ -6,7 +6,7 @@ namespace PvPer
 {
     public class DbManager
     {
-        private static IDbConnection _db;
+        private IDbConnection _db;
 
         public DbManager(IDbConnection db)
         {
@@ -54,7 +54,7 @@ namespace PvPer
         }
 
 
-        public static bool ClearData()
+        public bool ClearData()
         {
             return _db.Query("DELETE FROM Players") != 0;
         }
