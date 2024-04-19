@@ -32,7 +32,7 @@ namespace PvPer
             GetDataHandlers.KillMe += OnKill;
             ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
             GeneralHooks.ReloadEvent += LoadConfig;
-            TShockAPI.Commands.ChatCommands.Add(new Command("pvper.use", Commands.Duel, "pvp"));
+            TShockAPI.Commands.ChatCommands.Add(new Command("pvper.duel", Commands.Duel, "duel"));
         }
 
         private static void LoadConfig(ReloadEventArgs args = null!)
@@ -42,7 +42,7 @@ namespace PvPer
             if (File.Exists(configPath))
             {
                 Config = Configuration.Read(configPath);
-                Console.WriteLine($"[PvPerConfig]Reloading");
+                Console.WriteLine($"[PvPerConfig] Reloading");
             }
             else
             {
@@ -62,13 +62,13 @@ namespace PvPer
                 if (Config.PlayerKill)
                 {
                     plr.DamagePlayer(int.MaxValue);
-                    TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death]", Color.Yellow);
+                    TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death].", Color.Yellow);
                     return;
                 }
                 else
                 {
                     plr.DamagePlayer(Config.PlayerSlap);
-                    plr.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:deduction of {Config.PlayerSlap} blood]", Color.Yellow);
+                    plr.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:deduction of {Config.PlayerSlap} blood].", Color.Yellow);
                 }
                 if (Config.PullArena)
                 {
