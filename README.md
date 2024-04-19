@@ -10,6 +10,12 @@
 ## Logs
 
 ```
+1.1.1
+- In the configuration file, added options for "Pulling Range" and whether to "Pull Player Back to Arena." 
+- When the Pulling Range is set to 0, teleport the player who has exited the arena to the exact center point of the arena.
+- If the Pulling Range is negative, pull the player to a position on the center point aligned with the direction they exited the arena.
+-If the Pulling Range is positive, pull the player to a position on the center point that is opposite to the direction they exited the arena.
+
 1.1.0
 - Added the [Duel Reset] command to `/pvp help`.
 - Incorporated death taunts and consecutive win announcements.
@@ -40,10 +46,14 @@
 
 ```json
 {
+{
   "README": "/pvp set 3 4 Set the coordinates of the player's teleportation higher or lower than the player's coordinates by 3 blocks",
+  "README2": "`README2` = \"Pull Range: Will retract players from their direction of exiting the arena back to a specified opposite position relative to the arena center (a positive value indicates a position in the same direction). This feature is enabled by default when the option to kill players is disabled.\"",
   "PermName": "pvper.use / pvper.admin",
+  "PullArena": true,
+  "PullRange": -20,
   "PlayerKill": false,
-  "PlayerSlap": 100,
+  "PlayerSlap": 20,
   "Player1PositionX": 0,
   "Player1PositionY": 0,
   "Player2PositionX": 0,
@@ -52,5 +62,6 @@
   "ArenaPosY1": 0,
   "ArenaPosX2": 0,
   "ArenaPosY2": 0
+}
 }
 ```
