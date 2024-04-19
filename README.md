@@ -46,7 +46,6 @@
 
 ```json
 {
-{
   "README": "/pvp set 3 4 Set the coordinates of the player's teleportation higher or lower than the player's coordinates by 3 blocks",
   "README2": "`README2` = \"Pull Range: Will retract players from their direction of exiting the arena back to a specified opposite position relative to the arena center (a positive value indicates a position in the same direction). This feature is enabled by default when the option to kill players is disabled.\"",
   "PermName": "pvper.use / pvper.admin",
@@ -62,6 +61,5 @@
   "ArenaPosY1": 0,
   "ArenaPosX2": 0,
   "ArenaPosY2": 0
-}
 }
 ```
