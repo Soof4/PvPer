@@ -144,7 +144,8 @@ namespace PvPer
             TShock.Players[winner].SetPvP(false);
             TShock.Players[loser].SetPvP(false);
             
-            Task.Run(async () {
+            Task.Run(async () => 
+            {
                 // Save winner data and calculate win streak
                 SavePlayersData(winner);
                 // Reset loser's win streak to 0
