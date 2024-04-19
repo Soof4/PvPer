@@ -52,7 +52,7 @@ namespace PvPer
         }
 
         #region Hooks
-        public static async void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
+        public static void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
         {
             TSPlayer plr = TShock.Players[args.PlayerId];
             string name = plr.Name;
