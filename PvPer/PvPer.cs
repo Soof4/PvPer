@@ -61,7 +61,7 @@ namespace PvPer
             {
                 if (Config.PlayerKill)
                 {
-                    plr.KillPlayer();
+                    plr.DamagePlayer(int.MaxValue);
                     TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death]", Color.Yellow);
                     return;
                 }
