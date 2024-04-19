@@ -23,8 +23,7 @@ namespace PvPer
                         HelpCmd(args);
                     }
                     return;
-                case "0":
-                case "add":
+                case "invite":
                     if (args.Parameters.Count < 2)
                     {
                         args.Player.SendErrorMessage("Please specify the target player's name.");
@@ -34,20 +33,18 @@ namespace PvPer
                         InviteCmd(args);
                     }
                     return;
-                case "1":
-                case "yes":
+                case "accept":
                     AcceptCmd(args);
                     return;
-                case "2":
-                case "no":
+                case "reject":
+                case "decline":
                     RejectCommand(args);
                     return;
-                case "data":
-                case "mark":
+                case "stats":
                     StatsCommand(args);
                     return;
                 case "l":
-                case "list":
+                case "leaderboard":
                     LeaderboardCommand(args);
                     return;
                 case "s":
@@ -128,14 +125,14 @@ namespace PvPer
         {
             if (args.Player != null)
             {
-                args.Player.SendMessage("[Duel System] Please refer to the following command menu:\n " +
-                 "[c/FFFE80:/pvp add player name] - [c/7EE874:Invite player to duel] \n " +
-                 "[c/74D3E8:/pvp yes] - [c/7EE874:Accept duel] \n " +
-                 "[c/74D3E8:/pvp no] - [c/7EE874:Decline duel] \n " +
-                 "[c/74D3E8:/pvp data] - [c/7EE874:Check record]\n " +
-                 "[c/74D3E8:/pvp list] - [c/7EE874:Ranking]\n " +
-                 "[c/FFFE80:/pvp set 1 2 3 4] - [c/7EE874:1/2 player positions, 3/4 arena boundaries]\n " +
-                 "[c/74D3E8:/pvp reset] - [c/7EE874:Reset player database]\n ", Color.GreenYellow);
+                args.Player.SendMessage("List of Sub-commands:\n" +
+                 "[c/FFFE80:/duel invite <player name>] - [c/7EE874:Invite player to duel]\n" +
+                 "[c/74D3E8:/duel accept] - [c/7EE874:Accept duel]\n" +
+                 "[c/74D3E8:/duel reject] - [c/7EE874:Decline duel]\n" +
+                 "[c/74D3E8:/duel stats] - [c/7EE874:Check record]\n" +
+                 "[c/74D3E8:/duel leaderboard] - [c/7EE874:Ranking]\n" +
+                 "[c/FFFE80:/duel set <1/2/3/4>] - [c/7EE874:1/2 player positions, 3/4 arena boundaries]\n " +
+                 "[c/74D3E8:/duel reset] - [c/7EE874:Reset player database. (Admin only)]\n ", Color.GreenYellow);
             }
         }
 
@@ -195,7 +192,7 @@ namespace PvPer
 
             PvPer.Invitations.Add(new Pair(args.Player.Index, targetPlr.Index));
             args.Player.SendSuccessMessage($"Successfully invited {targetPlr.Name} to a duel.");
-            targetPlr.SendMessage($"{args.Player.Name} [c/FE7F81:has sent you a duel invitation] \nEnter [c/CCFFCC:/pvp yes to accept]  or [c/FFE6CC:/pvp no to decline] ", 255, 204, 255);
+            targetPlr.SendMessage($"{args.Player.Name} [c/FE7F81:has sent you a duel invitation] \nEnter [c/CCFFCC:/duel accept] yes to accept or [c/FFE6CC:/duel reject] to reject.", 255, 204, 255);
         }
 
         private static void AcceptCmd(CommandArgs args)
@@ -204,7 +201,7 @@ namespace PvPer
 
             if (invitation == null)
             {
-                args.Player.SendErrorMessage("[c/FE7F81:You currently have no received any duel invitations]");
+                args.Player.SendErrorMessage("You have no active invitations.");
                 return;
             }
 
@@ -217,11 +214,11 @@ namespace PvPer
 
             if (invitation == null)
             {
-                args.Player.SendErrorMessage("[c/FE7F81:You currently have no received any duel invitations]");
+                args.Player.SendErrorMessage("You have no active invitations.");
                 return;
             }
 
-            TShock.Players[invitation.Player1].SendErrorMessage("[c/FFCB80:The other player has declined your duel invitation]");
+            TShock.Players[invitation.Player1].SendErrorMessage("The other player has declined your duel invitation");
             PvPer.Invitations.Remove(invitation);
         }
 
@@ -233,10 +230,10 @@ namespace PvPer
                 {
                     DPlayer plr = PvPer.DbManager.GetDPlayer(args.Player.Account.ID);
                     args.Player.SendInfoMessage("[c/FFCB80:Your record:]\n" +
-                                                $"[c/63DC5A:Kills: ]{plr.Kills}\n" +
+                                                $"[c/63DC5A:Kills:] {plr.Kills}\n" +
                                                 $"[c/F56469:Deaths:] {plr.Deaths}\n" +
-                                                $"[c/F56469:Win streak:] {plr.WinStreak}\n" +
-                                                $"Kills/deaths [c/5993DB:kill-death ratio: ]{plr.GetKillDeathRatio()}");
+                                                $"[c/F56469:Win Streak:] {plr.WinStreak}\n" +
+                                                $"[c/5993DB:Kill-Death Ratio:] {plr.GetKillDeathRatio()}");
                 }
                 catch (NullReferenceException)
                 {
@@ -257,11 +254,11 @@ namespace PvPer
                     }
 
                     DPlayer plr = PvPer.DbManager.GetDPlayer(matchedAccounts[0].ID);
-                    args.Player.SendInfoMessage("[c/FFCB80:Your record:]\n" +
+                    args.Player.SendInfoMessage($"[c/FFCB80:{matchedAccounts[0].Name} record:]\n" +
                                                 $"[c/63DC5A:Kills:] {plr.Kills}\n" +
                                                 $"[c/F56469:Deaths:] {plr.Deaths}\n" +
-                                                $"[c/F56469:Win streak:] {plr.WinStreak}\n" +
-                                                $"Kills/deaths [c/5993DB:kill-death ratio: ]{plr.GetKillDeathRatio()}");
+                                                $"[c/F56469:Win Streak:] {plr.WinStreak}\n" +
+                                                $"[c/5993DB:Kill/Death Ratio: ]{plr.GetKillDeathRatio()}");
                 }
                 catch (NullReferenceException)
                 {
