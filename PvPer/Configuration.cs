@@ -7,9 +7,12 @@ namespace PvPer
     public class Configuration
     {
         public string README = "/pvp set 3 4 Set the coordinates of the player's teleportation higher or lower than the player's coordinates by 3 blocks";
+        public string README2 = "`README2` = \"Pull Range: Will retract players from their direction of exiting the arena back to a specified opposite position relative to the arena center (a positive value indicates a position in the same direction). This feature is enabled by default when the option to kill players is disabled.\"";
         public string PermName = "pvper.use / pvper.admin";
+        public bool PullArena = true;
+        public int PullRange = -20;
         public bool PlayerKill = false;
-        public int PlayerSlap = 100;
+        public int PlayerSlap = 20;
         public int Player1PositionX = 0;
         public int Player1PositionY = 0;
         public int Player2PositionX = 0;
