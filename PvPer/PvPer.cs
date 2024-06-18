@@ -12,7 +12,7 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(1, 1, 1);
+        public override Version Version => new Version(1, 1, 2);
         public override string Author => "Soofa 羽学";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
@@ -20,8 +20,11 @@ namespace PvPer
         public static Configuration Config = new Configuration();
 
         public static List<Pair> Invitations = new List<Pair>();
+        public static List<Pair> AwaitingDuels = new List<Pair>();
         public static List<Pair> ActiveDuels = new List<Pair>();
         public static DbManager DbManager = new DbManager(new SqliteConnection("Data Source=" + Path.Combine(TShock.SavePath, "PvPer.sqlite")));
+
+
         public override void Initialize()
         {
             LoadConfig();
@@ -51,6 +54,7 @@ namespace PvPer
             }
         }
 
+
         #region Hooks
         public static void OnPlayerUpdate(object? sender, GetDataHandlers.PlayerUpdateEventArgs args)
         {
@@ -61,14 +65,14 @@ namespace PvPer
             {
                 if (Config.PlayerKill)
                 {
-                    plr.DamagePlayer(int.MaxValue);
-                    TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death].", Color.Yellow);
+                    plr.KillPlayer();
+                    // TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:death].", Color.Yellow);
                     return;
                 }
                 else
                 {
                     plr.DamagePlayer(Config.PlayerSlap);
-                    plr.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:deduction of {Config.PlayerSlap} blood].", Color.Yellow);
+                    // plr.SendMessage($"{name}[c/E84B54:Escaped] the arena! Judged as [c/13A1D1:cowardice] and punished with [c/F86565:deduction of {Config.PlayerSlap} blood].", Color.Yellow);
                 }
                 if (Config.PullArena)
                 {
@@ -94,7 +98,7 @@ namespace PvPer
 
                     PullTP(plr, targetX, targetY, (int)Math.Max(pullR, 0));
 
-                    TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Action: [C/4284CD:Pulled back]", Color.Yellow);
+                    // TSPlayer.All.SendMessage($"{name}[c/E84B54:Escaped] the arena! Action: [C/4284CD:Pulled back]", Color.Yellow);
                 }
             }
         }

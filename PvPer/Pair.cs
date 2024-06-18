@@ -90,7 +90,7 @@ namespace PvPer
             plr2.SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
 
             PvPer.Invitations.Remove(this);
-            PvPer.ActiveDuels.Add(this);
+            PvPer.AwaitingDuels.Add(this);
 
             Task.Run(async () =>
             {
@@ -124,6 +124,9 @@ namespace PvPer
                     Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
                     plr2.X + 16, plr2.Y - 16);
 
+                PvPer.AwaitingDuels.Remove(this);
+                PvPer.ActiveDuels.Add(this);
+
                 plr1.TPlayer.hostile = true;
                 plr2.TPlayer.hostile = true;
                 NetMessage.SendData((int)PacketTypes.TogglePvp, Player1, -1, Terraria.Localization.NetworkText.Empty, Player1);
@@ -135,7 +138,6 @@ namespace PvPer
 
         public void EndDuel(int winner)
         {
-        
             int loser = winner == Player1 ? Player2 : Player1;
             string msg = DeathMessages.GetMessage(TShock.Players[winner].Name, TShock.Players[loser].Name);
             TSPlayer.All.SendMessage(msg, 255, 204, 255);
@@ -143,8 +145,8 @@ namespace PvPer
             PvPer.ActiveDuels.Remove(this);
             TShock.Players[winner].SetPvP(false);
             TShock.Players[loser].SetPvP(false);
-            
-            Task.Run(async () => 
+
+            Task.Run(async () =>
             {
                 // Save winner data and calculate win streak
                 SavePlayersData(winner);
@@ -154,10 +156,10 @@ namespace PvPer
                 DPlayer winnerData = PvPer.DbManager.GetDPlayer(TShock.Players[winner].Account.ID);
                 winnerData.WinStreak++; // Increment winner's win streak
                 PvPer.DbManager.SavePlayer(winnerData); // Save updated winner data
-    
+
                 int winStreak = winnerData.WinStreak; // Use updated winner's win streak directly
                 TSPlayer.All.SendMessage($"{TShock.Players[winner].Name} has won {winStreak} consecutive duels!", 255, 255, 90);
-    
+
                 // Launch fireworks
                 int p = Projectile.NewProjectile(Projectile.GetNoneSource(), TShock.Players[winner].TPlayer.position.X + 16,
                 TShock.Players[winner].TPlayer.position.Y - 64f, 0f, -8f, ProjectileID.RocketFireworkGreen, 0, 0);
