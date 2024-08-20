@@ -8,30 +8,6 @@
 - Additionally, the plugin supports loading and reloading of configuration files.
 - Note: Players who leave the designated combat area will be immediately killed and declared as losers.
 
-## Logs
-
-```
-1.1.1
-- In the configuration file, added options for "Pulling Range" and whether to "Pull Player Back to Arena."
-- When the Pulling Range is set to 0, teleport the player who has exited the arena to the exact center point of the arena.
-- If the Pulling Range is negative, pull the player to a position on the center point aligned with the direction they exited the arena.
--If the Pulling Range is positive, pull the player to a position on the center point that is opposite to the direction they exited the arena.
-
-1.1.0
-- Added the [Duel Reset] command to `/duel help`.
-- Incorporated death taunts and consecutive win announcements.
-- Added a "leave arena bleeding" option to the configuration file (enabled by default when death penalty is disabled).
-
-1.0.3
-- Added a subcommand for quickly setting player and arena boundaries (automatically writes to and saves the Config).
-- Added a toggle for "leaving the arena results in player death" in the configuration file, along with Chinese localization.
-- Fixed the implementation for leaving the arena triggering a death determination.
-
-1.0.2
-- Yuxue fully translated and revised all commands and their feedback messages.
-- Included a new command permission for resetting player data tables.
-```
-
 ## Commands
 
 | Syntax                | Permission  |                                     Description                                      |
