@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PvPer", "PvPer\PvPer.csproj", "{47885705-E77E-4E90-BB8B-B3A796CE7A83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PvPer", "PvPer\PvPer.csproj", "{74D2371B-40CC-44E0-9326-CDE951286679}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{47885705-E77E-4E90-BB8B-B3A796CE7A83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47885705-E77E-4E90-BB8B-B3A796CE7A83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47885705-E77E-4E90-BB8B-B3A796CE7A83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47885705-E77E-4E90-BB8B-B3A796CE7A83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74D2371B-40CC-44E0-9326-CDE951286679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74D2371B-40CC-44E0-9326-CDE951286679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74D2371B-40CC-44E0-9326-CDE951286679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74D2371B-40CC-44E0-9326-CDE951286679}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {48EE97DA-B787-4BE2-B29C-8E609196B776}
+		SolutionGuid = {3F247643-B203-4817-B016-19B59F79FFC6}
 	EndGlobalSection
 EndGlobal

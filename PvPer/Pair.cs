@@ -34,6 +34,97 @@ namespace PvPer
             return Player1 << 16 | Player2;
         }
 
+        public void SendErrorMessage(string msg)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SendErrorMessage(msg);
+            plr2.SendErrorMessage(msg);
+        }
+
+        public void SendSuccessMessage(string msg)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SendSuccessMessage(msg);
+            plr2.SendSuccessMessage(msg);
+        }
+
+        public void SetBuff(int type, int time = 3600, bool bypass = false)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SetBuff(type, time, bypass);
+            plr2.SetBuff(type, time, bypass);
+        }
+
+        public void SetPvP(bool mode, bool withMsg = false)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SetPvP(mode, withMsg);
+            plr2.SetPvP(mode, withMsg);
+        }
+
+        public void SetTeam(int team)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SetTeam(team);
+            plr2.SetTeam(team);
+        }
+        public void Heal(int health = 600)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.Heal(health);
+            plr2.Heal(health);
+        }
+
+        public void SendData(PacketTypes msgType, string text = "", int number = 0, float number2 = 0, float number3 = 0, float number4 = 0, int number5 = 0)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            plr1.SendData(msgType, text, number, number2, number3, number4, number5);
+            plr2.SendData(msgType, text, number, number2, number3, number4, number5);
+        }
+
+        public void SendFloatingMessage(string msg, Color color)
+        {
+            TSPlayer plr1 = TShock.Players[Player1];
+            TSPlayer plr2 = TShock.Players[Player2];
+
+            Utils.SendFloatingMessage(
+                msg,
+                new Vector2(plr1.X + 16, plr1.Y - 16),
+                color,
+                plr1.Index
+            );
+
+            Utils.SendFloatingMessage(
+                msg,
+                new Vector2(plr2.X + 16, plr2.Y - 16),
+                color,
+                plr2.Index
+            );
+        }
+
+        public void TogglePvP(bool isOn)
+        {
+            Main.player[Player1].hostile = isOn;
+            Main.player[Player2].hostile = isOn;
+
+            SendData(PacketTypes.TogglePvp, number: Player1);
+            SendData(PacketTypes.TogglePvp, number: Player2);
+        }
+
         public void StartDuel()
         {
             TSPlayer plr1 = TShock.Players[Player1];
@@ -43,24 +134,21 @@ namespace PvPer
             {
                 if (!plr1.Active || !plr2.Active)
                 {
-                    plr1.SendErrorMessage("Duel has been cancelled because one of the participants is offline.");
-                    plr2.SendErrorMessage("Duel has been cancelled because one of the participants is offline.");
+                    SendErrorMessage("Duel has been cancelled because one of the participants is offline.");
                     PvPer.Invitations.Remove(this);
                     return;
                 }
 
                 if (plr1.Dead || plr2.Dead)
                 {
-                    plr1.SendErrorMessage("Duel has been cancelled because one of the participants is dead.");
-                    plr2.SendErrorMessage("Duel has been cancelled because one of the participants is dead.");
+                    SendErrorMessage("Duel has been cancelled because one of the participants is dead.");
                     PvPer.Invitations.Remove(this);
                     return;
                 }
 
                 if (Utils.IsPlayerInADuel(plr1.Index) || Utils.IsPlayerInADuel(plr2.Index))
                 {
-                    plr1.SendErrorMessage("Duel has been cancelled because one of the participants is already in another duel.");
-                    plr2.SendErrorMessage("Duel has been cancelled because one of the participants is already in another duel.");
+                    SendErrorMessage("Duel has been cancelled because one of the participants is already in another duel.");
                     PvPer.Invitations.Remove(this);
                     return;
                 }
@@ -71,76 +159,47 @@ namespace PvPer
                 return;
             }
 
-            plr1.SendSuccessMessage($"Duel is starting!");
-            plr2.SendSuccessMessage($"Duel is starting!");
+            SendSuccessMessage($"Duel is starting!");
 
             plr1.Teleport(PvPer.Config.Player1PositionX * 16, PvPer.Config.Player1PositionY * 16);
             plr2.Teleport(PvPer.Config.Player2PositionX * 16, PvPer.Config.Player2PositionY * 16);
 
-            plr1.SetBuff(BuffID.Webbed, 60 * 6);
-            plr2.SetBuff(BuffID.Webbed, 60 * 6);
-
-            plr1.SetPvP(false);
-            plr2.SetPvP(false);
-            plr1.SetTeam(0);
-            plr2.SetTeam(0);
-            plr1.Heal();
-            plr2.Heal();
-            plr1.SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
-            plr2.SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
+            SetBuff(BuffID.Webbed, 60 * 6);
+            SetPvP(false);
+            SetTeam(0);
+            Heal();
+            SendData(PacketTypes.PlayerDodge, number: plr1.Index, number2: 6);
 
             PvPer.Invitations.Remove(this);
             PvPer.AwaitingDuels.Add(this);
 
             Task.Run(async () =>
             {
-                NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
-                    plr1.X + 16, plr1.Y - 16);
-
-                NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("Duel starting in..."), (int)new Color(0, 255, 0).PackedValue,
-                    plr2.X + 16, plr2.Y - 16);
+                SendFloatingMessage("Duel starting in...", new Color(0, 255, 0));
 
                 for (int i = 5; i > 0; i--)
                 {
+                    SendFloatingMessage(i.ToString(), new Color(255 - i * 50, i * 50, 0));
                     await Task.Delay(1000);
-                    NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255 - i * 50, i * 50, 0).PackedValue,
-                        plr1.X + 16, plr1.Y - 16);
-
-                    NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                        Terraria.Localization.NetworkText.FromLiteral(i.ToString()), (int)new Color(255 - i * 50, i * 50, 0).PackedValue,
-                        plr2.X + 16, plr2.Y - 16);
                 }
 
                 await Task.Delay(1000);
 
-                NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player1, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
-                    plr1.X + 16, plr1.Y - 16);
-
-                NetMessage.SendData((int)PacketTypes.CreateCombatTextExtended, Player2, -1,
-                    Terraria.Localization.NetworkText.FromLiteral("GO!!"), (int)new Color(255, 0, 0).PackedValue,
-                    plr2.X + 16, plr2.Y - 16);
+                SendFloatingMessage("GO!!!", new Color(255, 0, 0));
 
                 PvPer.AwaitingDuels.Remove(this);
                 PvPer.ActiveDuels.Add(this);
 
-                plr1.TPlayer.hostile = true;
-                plr2.TPlayer.hostile = true;
-                NetMessage.SendData((int)PacketTypes.TogglePvp, Player1, -1, Terraria.Localization.NetworkText.Empty, Player1);
-                NetMessage.SendData((int)PacketTypes.TogglePvp, Player1, -1, Terraria.Localization.NetworkText.Empty, Player2);
-                NetMessage.SendData((int)PacketTypes.TogglePvp, Player2, -1, Terraria.Localization.NetworkText.Empty, Player1);
-                NetMessage.SendData((int)PacketTypes.TogglePvp, Player2, -1, Terraria.Localization.NetworkText.Empty, Player2);
+                TogglePvP(true);
             });
         }
 
         public void EndDuel(int winner)
         {
             int loser = winner == Player1 ? Player2 : Player1;
+
             string msg = DeathMessages.GetMessage(TShock.Players[winner].Name, TShock.Players[loser].Name);
-            TSPlayer.All.SendMessage(msg, 255, 204, 255);
+            TSPlayer.All.SendMessage(msg, 255, 25, 25);
 
             PvPer.ActiveDuels.Remove(this);
             TShock.Players[winner].SetPvP(false);

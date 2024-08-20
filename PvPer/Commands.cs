@@ -16,127 +16,56 @@ namespace PvPer
 
             switch (args.Parameters[0].ToLower())
             {
-                case "h":
-                case "help":
-                    if (args.Parameters.Count < 2)
-                    {
-                        HelpCmd(args);
-                    }
-                    return;
                 case "invite":
-                    if (args.Parameters.Count < 2)
-                    {
-                        args.Player.SendErrorMessage("Please specify the target player's name.");
-                    }
-                    else
-                    {
-                        InviteCmd(args);
-                    }
+                    InviteCmd(args);
                     return;
                 case "accept":
                     AcceptCmd(args);
                     return;
                 case "reject":
                 case "decline":
-                    RejectCommand(args);
+                    RejectCmd(args);
                     return;
                 case "stats":
-                    StatsCommand(args);
+                    StatsCmd(args);
                     return;
                 case "l":
                 case "leaderboard":
-                    LeaderboardCommand(args);
+                    LeaderboardCmd(args);
                     return;
                 case "s":
                 case "set":
-                    {
-                        int result;
-                        if (args.Parameters.Count == 2 && int.TryParse(args.Parameters[1], out result) && IsValidLocationType(result))
-                        {
-                            int x = args.Player.TileX;
-                            int y = args.Player.TileY;
-
-                            switch (result)
-                            {
-                                case 1:
-                                    PvPer.Config.Player1PositionX = x;
-                                    PvPer.Config.Player1PositionY = y;
-                                    args.Player.SendMessage($"Your current position has been set as the [c/F75454:Inviter]'s teleport point, with coordinates ({x}, {y})", Color.CadetBlue);
-                                    Console.WriteLine($"[Duel System] Inviter's teleport point set, coordinates ({x}, {y})", Color.BurlyWood);
-                                    break;
-                                case 2:
-                                    PvPer.Config.Player2PositionX = x;
-                                    PvPer.Config.Player2PositionY = y;
-                                    args.Player.SendMessage($"Your current position has been set as the [c/49B3D6:Invitee]'s teleport point, with coordinates ({x}, {y})", Color.CadetBlue);
-                                    Console.WriteLine($"[Duel System] Invitee's teleport point set, coordinates ({x}, {y})", Color.BurlyWood);
-                                    break;
-
-                                case 3:
-                                    PvPer.Config.ArenaPosX1 = x;
-                                    PvPer.Config.ArenaPosY1 = y;
-                                    args.Player.SendMessage($"Your current position has been set as the [c/9487D6:Arena]'s top-left corner, with coordinates ({x}, {y})", Color.Yellow);
-                                    Console.WriteLine($"[Duel System] Arena's top-left corner set, coordinates ({x}, {y})", Color.Yellow);
-                                    break;
-                                case 4:
-                                    PvPer.Config.ArenaPosX2 = x;
-                                    PvPer.Config.ArenaPosY2 = y;
-                                    args.Player.SendMessage($"Your current position has been set as the [c/9487D6:Arena]'s bottom-right corner, with coordinates ({x}, {y})", Color.Yellow);
-                                    Console.WriteLine($"[Duel System] Arena's bottom-right corner set, coordinates ({x}, {y})", Color.Yellow);
-                                    break;
-
-                                default:
-                                    args.Player.SendErrorMessage("[i:4080]Command error! [c/CCEB60:Correct command: /pvp set[1/2/3/4]]");
-                                    return;
-                            }
-
-                            PvPer.Config.Write(Configuration.FilePath);
-                        }
-                        else
-                        {
-                            args.Player.SendErrorMessage("[i:4080]commandsystem! \nCorrect command: /pvp set [1/2/3/4] - [c/7EE874:1/2 player positions, 3/4 arena boundaries]");
-                        }
-                        break;
-                    }
+                    SetCmd(args);
+                    return;
                 case "r":
                 case "reset":
-                    if (args.Parameters.Count < 2)
-                    {
-                        var name = args.Player.Name;
-                        if (!args.Player.HasPermission("pvper.admin"))
-                        {
-                            args.Player.SendErrorMessage("You do not have permission to reset the duelsystem data table.");
-                            TShock.Log.ConsoleInfo($"{name} attempted to execute the reset duelsystem data command");
-                            return;
-                        }
-                        else
-                        {
-                            ClearAllData(args);
-                        }
-                    }
+                    ResetCmd(args);
                     return;
                 default:
                     HelpCmd(args);
-                    break;
+                    return;
             }
         }
 
 
         private static void HelpCmd(CommandArgs args)
         {
-            if (args.Player != null)
+            string msg = "List of Sub-commands:\n" +
+                "[c/FFFE80:/duel invite <player name>] - [c/7EE874:Invite player to duel]\n" +
+                "[c/74D3E8:/duel accept] - [c/7EE874:Accept duel]\n" +
+                "[c/74D3E8:/duel reject] - [c/7EE874:Decline duel]\n" +
+                "[c/74D3E8:/duel stats] - [c/7EE874:Check record]\n" +
+                "[c/74D3E8:/duel leaderboard] - [c/7EE874:Ranking]";
+
+            if (args.Player.HasPermission("pvper.admin"))
             {
-                args.Player.SendMessage("List of Sub-commands:\n" +
-                 "[c/FFFE80:/duel invite <player name>] - [c/7EE874:Invite player to duel]\n" +
-                 "[c/74D3E8:/duel accept] - [c/7EE874:Accept duel]\n" +
-                 "[c/74D3E8:/duel reject] - [c/7EE874:Decline duel]\n" +
-                 "[c/74D3E8:/duel stats] - [c/7EE874:Check record]\n" +
-                 "[c/74D3E8:/duel leaderboard] - [c/7EE874:Ranking]\n" +
-                 "[c/FFFE80:/duel set <1/2/3/4>] - [c/7EE874:1/2 player positions, 3/4 arena boundaries]\n " +
-                 "[c/74D3E8:/duel reset] - [c/7EE874:Reset player database. (Admin only)]\n ", Color.GreenYellow);
+                msg += "\n[c/FFFE80:/duel set <1/2/3/4>] - [c/7EE874:1/2 player positions, 3/4 arena boundaries] (Admin only)\n " +
+                    "[c/74D3E8:/duel reset] - [c/7EE874:Reset player database. (Admin only)]";
             }
+
+            args.Player.SendMessage(msg, Color.GreenYellow);
         }
 
-        #region Use command to clean up database and set location method
         private static void ClearAllData(CommandArgs args)
         {
             // Try to delete all player data from the database
@@ -151,17 +80,15 @@ namespace PvPer
                 TShock.Log.ConsoleInfo("An error occurred while clearing all players' dueling data.");
             }
         }
-        #endregion
-
-        private static bool IsValidLocationType(int locationType)
-        {
-            return locationType >= 1 && locationType <= 4;
-        }
-
-
 
         private static void InviteCmd(CommandArgs args)
         {
+            if (args.Parameters.Count < 2)
+            {
+                args.Player.SendErrorMessage("Please specify the target player's name.");
+                return;
+            }
+
             List<TSPlayer> plrList = TSPlayer.FindByNameOrID(string.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1)));
 
             if (plrList.Count == 0)
@@ -208,7 +135,7 @@ namespace PvPer
             invitation.StartDuel();
         }
 
-        private static void RejectCommand(CommandArgs args)
+        private static void RejectCmd(CommandArgs args)
         {
             Pair? invitation = Utils.GetInvitationFromReceiverIndex(args.Player.Index);
 
@@ -222,7 +149,7 @@ namespace PvPer
             PvPer.Invitations.Remove(invitation);
         }
 
-        private static void StatsCommand(CommandArgs args)
+        private static void StatsCmd(CommandArgs args)
         {
             if (args.Parameters.Count < 2)
             {
@@ -267,7 +194,7 @@ namespace PvPer
             }
         }
 
-        private static void LeaderboardCommand(CommandArgs args)
+        private static void LeaderboardCmd(CommandArgs args)
         {
             Task.Run(() =>
             {
@@ -302,6 +229,72 @@ namespace PvPer
                 }
                 args.Player.SendInfoMessage(message);
             });
+        }
+
+        private static void SetCmd(CommandArgs args)
+        {
+            if (!args.Player.HasPermission("pvper.admin"))
+            {
+                args.Player.SendErrorMessage("You do not have permission to use this command!");
+                return;
+            }
+
+            int result;
+            if (args.Parameters.Count == 2 && int.TryParse(args.Parameters[1], out result) && result >= 1 && result <= 4)
+            {
+                int x = args.Player.TileX;
+                int y = args.Player.TileY;
+
+                switch (result)
+                {
+                    case 1:
+                        PvPer.Config.Player1PositionX = x;
+                        PvPer.Config.Player1PositionY = y;
+                        args.Player.SendMessage($"Your current position has been set as the [c/F75454:Inviter]'s teleport point, with coordinates ({x}, {y})", Color.CadetBlue);
+                        Console.WriteLine($"[Duel System] Inviter's teleport point set, coordinates ({x}, {y})", Color.BurlyWood);
+                        break;
+                    case 2:
+                        PvPer.Config.Player2PositionX = x;
+                        PvPer.Config.Player2PositionY = y;
+                        args.Player.SendMessage($"Your current position has been set as the [c/49B3D6:Invitee]'s teleport point, with coordinates ({x}, {y})", Color.CadetBlue);
+                        Console.WriteLine($"[Duel System] Invitee's teleport point set, coordinates ({x}, {y})", Color.BurlyWood);
+                        break;
+
+                    case 3:
+                        PvPer.Config.ArenaPosX1 = x;
+                        PvPer.Config.ArenaPosY1 = y;
+                        args.Player.SendMessage($"Your current position has been set as the [c/9487D6:Arena]'s top-left corner, with coordinates ({x}, {y})", Color.Yellow);
+                        Console.WriteLine($"[Duel System] Arena's top-left corner set, coordinates ({x}, {y})", Color.Yellow);
+                        break;
+                    case 4:
+                        PvPer.Config.ArenaPosX2 = x;
+                        PvPer.Config.ArenaPosY2 = y;
+                        args.Player.SendMessage($"Your current position has been set as the [c/9487D6:Arena]'s bottom-right corner, with coordinates ({x}, {y})", Color.Yellow);
+                        Console.WriteLine($"[Duel System] Arena's bottom-right corner set, coordinates ({x}, {y})", Color.Yellow);
+                        break;
+
+                    default:
+                        args.Player.SendErrorMessage("[i:4080]Command error! [c/CCEB60:Correct command: /pvp set[1/2/3/4]]");
+                        return;
+                }
+
+                PvPer.Config.Write(Configuration.FilePath);
+            }
+            else
+            {
+                args.Player.SendErrorMessage("[i:4080]commandsystem! \nCorrect command: /pvp set [1/2/3/4] - [c/7EE874:1/2 player positions, 3/4 arena boundaries]");
+            }
+        }
+
+        private static void ResetCmd(CommandArgs args)
+        {
+            if (!args.Player.HasPermission("pvper.admin"))
+            {
+                args.Player.SendErrorMessage("You do not have permisssion to use this command!");
+                return;
+            }
+
+            ClearAllData(args);
         }
     }
 }
