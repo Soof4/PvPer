@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using System.Configuration;
 using TShockAPI;
 
 namespace PvPer
@@ -24,6 +23,7 @@ namespace PvPer
                     return;
                 case "reject":
                 case "decline":
+                case "deny":
                     RejectCmd(args);
                     return;
                 case "stats":
@@ -117,7 +117,7 @@ namespace PvPer
                 return;
             }
 
-            PvPer.Invitations.Add(new Pair(args.Player.Index, targetPlr.Index));
+            PvPer.Invitations.Add(new Pair(args.Player, targetPlr));
             args.Player.SendSuccessMessage($"Successfully invited {targetPlr.Name} to a duel.");
             targetPlr.SendMessage($"{args.Player.Name} [c/FE7F81:has sent you a duel invitation] \nEnter [c/CCFFCC:/duel accept] to accept or [c/FFE6CC:/duel reject] to reject.", 255, 204, 255);
         }
@@ -145,7 +145,7 @@ namespace PvPer
                 return;
             }
 
-            TShock.Players[invitation.Player1].SendErrorMessage("The other player has declined your duel invitation");
+            invitation.Player1.SendErrorMessage("The other player has declined your duel invitation");
             PvPer.Invitations.Remove(invitation);
         }
 

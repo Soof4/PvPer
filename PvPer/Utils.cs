@@ -10,7 +10,7 @@ namespace PvPer
         {
             foreach (Pair p in PvPer.ActiveDuels)
             {
-                if (p.Player1 == playerIndex || p.Player2 == playerIndex)
+                if (p.Player1.Index == playerIndex || p.Player2.Index == playerIndex)
                 {
                     return true;
                 }
@@ -18,7 +18,7 @@ namespace PvPer
 
             foreach (Pair p in PvPer.AwaitingDuels)
             {
-                if (p.Player1 == playerIndex || p.Player2 == playerIndex)
+                if (p.Player1.Index == playerIndex || p.Player2.Index == playerIndex)
                 {
                     return true;
                 }
@@ -31,7 +31,7 @@ namespace PvPer
         {
             foreach (Pair p in PvPer.Invitations)
             {
-                if (p.Player1 == playerIndex)
+                if (p.Player1.Index == playerIndex)
                 {
                     return p;
                 }
@@ -44,7 +44,7 @@ namespace PvPer
         {
             foreach (Pair p in PvPer.Invitations)
             {
-                if (p.Player2 == playerIndex)
+                if (p.Player2.Index == playerIndex)
                 {
                     return p;
                 }
@@ -57,7 +57,7 @@ namespace PvPer
         {
             foreach (Pair p in PvPer.ActiveDuels)
             {
-                if (p.Player1 == playerIndex || p.Player2 == playerIndex)
+                if (p.Player1.Index == playerIndex || p.Player2.Index == playerIndex)
                 {
                     return p;
                 }

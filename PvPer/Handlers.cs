@@ -1,4 +1,3 @@
-using System.IO.Streams;
 using Terraria;
 using TShockAPI;
 using TShockAPI.Hooks;
@@ -84,9 +83,9 @@ namespace PvPer
 
             if (duel != null)
             {
-                int winnerIndex = duel.Player1 == plr.Index ? duel.Player2 : duel.Player1;
+                TSPlayer winner = duel.Player1.Index == plr.Index ? duel.Player2 : duel.Player1;
                 Utils.ProcessDeath(args);
-                duel.EndDuel(winnerIndex);
+                duel.EndDuel(winner);
             }
         }
 
@@ -95,8 +94,8 @@ namespace PvPer
             Pair? duel = Utils.GetDuel(args.Who);
             if (duel != null)
             {
-                int winnerIndex = duel.Player1 == args.Who ? duel.Player2 : duel.Player1;
-                duel.EndDuel(winnerIndex);
+                TSPlayer winner = duel.Player1.Index == args.Who ? duel.Player2 : duel.Player1;
+                duel.EndDuel(winner);
             }
         }
 

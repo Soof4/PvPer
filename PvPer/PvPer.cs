@@ -2,8 +2,6 @@
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
-using TShockAPI.Hooks;
-using Microsoft.Xna.Framework;
 
 namespace PvPer
 {
@@ -11,7 +9,7 @@ namespace PvPer
     public class PvPer : TerrariaPlugin
     {
         public override string Name => "PvPer";
-        public override Version Version => new Version(1, 1, 3);
+        public override Version Version => new Version(1, 1, 4);
         public override string Author => "Soofa 羽学";
         public override string Description => "PvP with commands.";
         public PvPer(Main game) : base(game) { }
