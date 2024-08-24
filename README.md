@@ -8,6 +8,8 @@
 - Additionally, the plugin supports loading and reloading of configuration files.
 - Note: Players who leave the designated combat area will be immediately killed and declared as losers.
 
+If you want to read this in another language: [Spanish](https://github.com/Soof4/PvPer/blob/main/README_SPANISH.md)
+
 ## Commands
 
 | Syntax                | Permission  |                                     Description                                      |
